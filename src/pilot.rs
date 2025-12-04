@@ -13,7 +13,7 @@ impl Pilot {
 
 impl Pilot {
     pub fn display_info(&self) {
-        println!("Name: {}", self.name);
+        println!("Name diff: {}", self.name);
         println!("Age: {}", self.age);
         println!("Points: {}", self.points);
     }
