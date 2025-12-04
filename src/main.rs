@@ -1,8 +1,15 @@
-mod pilot;
+use actix_web::{get, post, web, App, HttpResponse, HttpServer, Responder};
 
-use pilot::Pilot;
+#[get("/")]
+async fn hello() -> impl Responder {
+    HttpResponse::Ok().body("Hello world!")
+}
 
-fn main() {
-    let pilot: Pilot = Pilot::new(String::from("John"), 30, 100);
-    pilot.display_info();
+#[post("/echo")]
+async fn echo(req_body: String) -> impl Responder {
+    HttpResponse::Ok().body(req_body)
+}
+
+async fn manual_hello() -> impl Responder {
+    HttpResponse::Ok().body("Hey there!")
 }
