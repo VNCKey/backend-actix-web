@@ -1,6 +1,6 @@
 mod config;
 
-use actix_web::{App, HttpResponse, HttpServer, Responder, web};
+use actix_web::{web, App, HttpResponse, HttpServer, Responder};
 use sqlx::PgPool;
 
 async fn health() -> impl Responder {
@@ -9,8 +9,11 @@ async fn health() -> impl Responder {
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    // 1. Cargar config
+    // 1. Cargar configuración
     let cfg = config::get_config();
+
+    let bind_addr = cfg.server.bind.unwrap_or("0.0.0.0".into());
+    let port = cfg.server.port.unwrap_or(8080);
 
     // 2. Construir connection string
     let conn_str = format!(
@@ -21,9 +24,11 @@ async fn main() -> std::io::Result<()> {
         cfg.database.port,
         cfg.database.name,
     );
-    println!("Iniciando servidor...");
-    println!("Conectando a DB: {}", conn_str);
-    // 3. Crear pool de PostgreSQL
+
+    println!("Iniciando servidor en {}:{}", bind_addr, port);
+    println!("Conectando a PostgreSQL: {}", conn_str);
+
+    // 3. Crear pool
     let pool = PgPool::connect(&conn_str)
         .await
         .expect("No se pudo conectar a PostgreSQL");
@@ -34,7 +39,7 @@ async fn main() -> std::io::Result<()> {
             .app_data(web::Data::new(pool.clone()))
             .route("/health", web::get().to(health))
     })
-    .bind(("0.0.0.0", 8080))?
+    .bind((bind_addr.as_str(), port))?
     .run()
     .await
 }

@@ -1,11 +1,15 @@
 services:
-  backend:
-    build: .
-    container_name: rust_backend
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+    container_name: rust_api
     ports:
       - "8080:8080"
     depends_on:
       - db
+    environment:
+      RUST_LOG: info
 
   db:
     image: postgres:16
@@ -17,8 +21,7 @@ services:
       POSTGRES_DB: rust_db
     volumes:
       - pgdata:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
+
 
 volumes:
-  pgdata:
+  pgdata_prod:

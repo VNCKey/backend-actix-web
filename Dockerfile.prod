@@ -1,0 +1,36 @@
+# ---- Builder ----
+FROM rust:latest as builder
+
+WORKDIR /app
+
+# Copiar solo archivos necesarios para cachear dependencias
+COPY Cargo.toml Cargo.lock ./
+RUN mkdir src && echo "fn main() {}" > src/main.rs
+
+# Compilar dependencias (se cachea mientras no cambie Cargo.toml)
+RUN cargo build --release
+
+# Copiar el código real
+COPY . .
+
+# Compilar binario final
+RUN cargo build --release
+
+# ---- Runtime ----
+FROM debian:bookworm-slim
+
+WORKDIR /app
+
+# Instalar dependencias mínimas
+RUN apt-get update && apt-get install -y libssl-dev ca-certificates && update-ca-certificates
+
+# Copiar binario desde builder
+COPY --from=builder /app/target/release/learning_rust/app/app
+
+# Copiar carpeta completa de configuraciones
+COPY config /app/config
+
+# Exponer puerto del servidor
+EXPOSE 8080
+
+CMD ["./app"]

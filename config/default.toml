@@ -1,6 +1,10 @@
+[server]
+bind = "0.0.0.0"
+port = 8080
+
 [database]
 host = "db"
 port = 5432
 user = "postgres"
 password = "postgres"
-name = "rust_db"
+name = "rust_dev"

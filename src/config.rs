@@ -1,6 +1,19 @@
+use config as config_rs;
 use serde::Deserialize;
 
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
+pub struct Settings {
+    pub server: ServerConfig,
+    pub database: DatabaseConfig,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct ServerConfig {
+    pub bind: Option<String>,
+    pub port: Option<u16>,
+}
+
+#[derive(Debug, Deserialize)]
 pub struct DatabaseConfig {
     pub host: String,
     pub port: u16,
@@ -9,17 +22,16 @@ pub struct DatabaseConfig {
     pub name: String,
 }
 
-#[derive(Deserialize)]
-pub struct AppConfig {
-    pub database: DatabaseConfig,
-}
+pub fn get_config() -> Settings {
+    // Leer el entorno: default | dev | prod
+    let env = std::env::var("RUST_ENV").unwrap_or("default".into());
 
-pub fn get_config() -> AppConfig {
-    let settings = config::Config::builder()
-        .add_source(config::File::with_name("config/default"))
-        .add_source(config::Environment::with_prefix("APP").separator("__"))
-        .build()
-        .unwrap();
+    let builder = config_rs::Config::builder()
+        .add_source(config_rs::File::with_name("config/default"))
+        .add_source(
+            config_rs::File::with_name(&format!("config/{}", env)).required(false), // si no existe prod.toml, no explota
+        );
 
-    settings.try_deserialize::<AppConfig>().unwrap()
+    let cfg = builder.build().expect("Error cargando configuración");
+    cfg.try_deserialize().expect("Config inválida")
 }
