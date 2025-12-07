@@ -1,0 +1,2 @@
+Separacion de Responsabilidades SRP
+- Separar el codigo en modulos

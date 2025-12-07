@@ -12,6 +12,7 @@ services:
       - .:/app
     environment:
       RUST_ENV: dev
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/rust_dev
 
   db:
     image: postgres:16

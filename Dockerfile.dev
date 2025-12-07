@@ -1,3 +1,5 @@
+# Dockerfile.dev (Modificado)
+
 FROM rust
 
 WORKDIR /app
@@ -11,4 +13,5 @@ RUN cargo build
 
 COPY . .
 
-CMD ["cargo", "watch", "-x", "run"]
+# CAMBIO CLAVE: Añadir --poll al comando
+CMD ["cargo", "watch", "-x", "run", "--poll"]
